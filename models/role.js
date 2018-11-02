@@ -1,15 +1,10 @@
 const Sequelize = require('sequelize');
 const User = require('./user');
 const Meeting = require('./meeting');
-// create a sequelize instance with our local postgres database information.
-var sequelize = new Sequelize('meeting', 'root', '', {
-    dialect: 'mysql',
-    host: 'localhost',
-    port: '3306',
-    operatorsAliases: false
-});
+const connectDB = require('../configs/connect_database');
+const sequelize = connectDB();
 
-var UserMeeting = sequelize.define('user_meeting', {
+var Role = sequelize.define('roles', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -22,11 +17,11 @@ var UserMeeting = sequelize.define('user_meeting', {
 }, {
     underscored: true
 });
-UserMeeting.belongsTo(User);
-UserMeeting.belongsTo(Meeting);
+Role.belongsTo(User);
+Role.belongsTo(Meeting);
 
 // create all the defined tables in the specified database.
 sequelize.sync();
 
 // export User model for use in other files.
-module.exports = UserMeeting;
+module.exports = Role;

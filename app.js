@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 var users = require('./routes/users');
 var meetings = require('./routes/meetings');
-var userMeeting = require('./routes/user_meetings');
+var roles = require('./routes/roles');
+var subContents = require('./routes/sub_contents');
 
 const app = express();
 app.set('port', 3000);
@@ -18,4 +19,5 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Route
 app.use('/api/users', users);
 app.use('/api/meetings', meetings);
+app.use('/api/text_processing', subContents);
 app.listen(app.get('port'), () => console.log(`Listing to port ${app.get('port')}`));

@@ -1,15 +1,28 @@
 const Sequelize = require('sequelize');
 const User = require('./user');
+const Meeting = require('./meeting');
 const connectDB = require('../configs/connect_database');
 const sequelize = connectDB();
 
-var Meeting = sequelize.define('meetings', {
+var subContent = sequelize.define('sub_contents', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    title: {
+    author: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    content: {
+        type: Sequelize.TEXT,
+        allowNull: false
+    },
+    start_time: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    end_time: {
         type: Sequelize.STRING,
         allowNull: false
     }
@@ -17,9 +30,10 @@ var Meeting = sequelize.define('meetings', {
     underscored: true
 });
 
-Meeting.belongsTo(User, {foreignKey: 'user_created_id'});
+subContent.belongsTo(User);
+subContent.belongsTo(Meeting);
 // create all the defined tables in the specified database.
 sequelize.sync();
 
 // export User model for use in other files.
-module.exports = Meeting;
+module.exports = subContent;
