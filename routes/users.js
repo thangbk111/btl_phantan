@@ -12,7 +12,7 @@ router.post('/login', (req, res) => {
     }).then(user => {
         //User is not exist
         if (!user) {
-            res.json({'error': true, 'message': 'User not exist'});
+            return res.json({'error': true, 'message': 'User not exist'});
         }
         //Check User Password
         if (bcrypt.compareSync(req.body.password, user.password)) {
@@ -31,7 +31,7 @@ router.post('/signup', (req, res) => {
     }).then(user => {
         //User is exist
         if (user) {
-            res.json({'error': true, 'message': 'User is exist. Please sign in or choose another email'});
+            return res.json({'error': true, 'message': 'User is exist. Please sign in or choose another email'});
         }
         //Check validate
         var { error } = validateUser(req.body);
