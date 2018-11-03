@@ -2,28 +2,29 @@ const Joi = require('joi');
 const express = require('express');
 const router = express.Router();
 var Meeting = require('../models/meeting');
+var isAuthenticated = require('../middleware/authenticate');
 
-router.get('/', (req, res) => {
+router.get('/', isAuthenticated, (req, res) => {
     Meeting.all().then(meetings => {
         res.json({ 'success': true, 'data': meetings});
     });
 });
 
-router.post('/', (req, res) => {
+router.post('/', isAuthenticated, (req, res) => {
     var { error } = validateMeeting(req.body);
     if (error) {
         res.json({ 'error': true, 'message': error.details[0].message});
     } else{
         Meeting.create({
             title: req.body.title,
-            user_created_id: 1 // Chưa có session, để default là thằng số 1 tạo ra cuộc Meeting
+            user_created_id: req.decoded.id
         }).then(newMeeting => {
             res.json({ 'success': true, 'data': newMeeting});
         });
     }
 })
 
-router.put('/:id', (req, res) => {
+router.put('/:id', isAuthenticated, (req, res) => {
     Meeting.findById(req.params.id).then(meeting => {
         if (!meeting) {
             return res.status(404).json({'error': true, 'message': 'The is no meeting available'});
@@ -39,7 +40,7 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', isAuthenticated, (req, res) => {
     Meeting.findById(req.params.id).then(meeting => {
         if (!meeting) {
             return res.status(404).json({'error': true, 'message': 'The is no meeting available for delete'});
