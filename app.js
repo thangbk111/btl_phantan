@@ -1,6 +1,6 @@
 const express = require('express');
-const router = express.Router();
 const bodyParser = require('body-parser');
+const session = require('express-session');
 const morgan = require('morgan');
 var users = require('./routes/users');
 var meetings = require('./routes/meetings');
@@ -8,12 +8,13 @@ var roles = require('./routes/roles');
 var subContents = require('./routes/sub_contents');
 
 const app = express();
+//Configs
 app.set('port', 3000);
 
+
+//Use Middleware
 app.use(express.json());
-// set morgan to log info about our requests for development use.
 app.use(morgan('dev'));
-// initialize body-parser to parse incoming parameters requests to req.body
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Route

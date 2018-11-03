@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 var User = require('../models/user');
 
@@ -16,7 +17,13 @@ router.post('/login', (req, res) => {
         }
         //Check User Password
         if (bcrypt.compareSync(req.body.password, user.password)) {
-            res.json({ 'sucess': true, 'data': user});
+            const payload = {
+                id: user.id
+            };
+            var token = jwt.sign(payload, 'btl_phantan', {
+                expiresIn: '24h' // expires in 24 hours
+            });
+            res.json({ 'sucess': true, 'data': user, "token": token});
         } else {
             res.json({'error': true, 'message': 'Password Wrong !!!'});
         }

@@ -10,6 +10,10 @@ var subContent = sequelize.define('sub_contents', {
         primaryKey: true,
         autoIncrement: true,
     },
+    number_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
     author: {
         type: Sequelize.STRING,
         allowNull: false
