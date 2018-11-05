@@ -1,12 +1,7 @@
 const Sequelize = require('sequelize');
 const bcrypt = require('bcryptjs');
-// create a sequelize instance with our local postgres database information.
-var sequelize = new Sequelize('meeting', 'root', '', {
-    dialect: 'mysql',
-    host: 'localhost',
-    port: '3306',
-    operatorsAliases: false
-});
+const connectDB = require('../configs/connect_database');
+const sequelize = connectDB();
 
 // setup User model and its fields.
 var User = sequelize.define('users', {
