@@ -23,7 +23,8 @@ router.post('/login', (req, res) => {
             var token = jwt.sign(payload, 'btl_phantan', {
                 expiresIn: '24h' // expires in 24 hours
             });
-            res.json({ 'sucess': true, 'data': user, "token": token});
+            user.dataValues['token'] = token;
+            res.json({ 'sucess': true, 'data': user});
         } else {
             res.json({'status': false, 'data': 'Password Wrong !!!'});
         }
