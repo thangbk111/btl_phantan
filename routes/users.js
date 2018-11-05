@@ -13,7 +13,7 @@ router.post('/login', (req, res) => {
     }).then(user => {
         //User is not exist
         if (!user) {
-            return res.json({'error': true, 'message': 'User not exist'});
+            return res.json({'status': false, 'data': 'User not exist'});
         }
         //Check User Password
         if (bcrypt.compareSync(req.body.password, user.password)) {
@@ -25,7 +25,7 @@ router.post('/login', (req, res) => {
             });
             res.json({ 'sucess': true, 'data': user, "token": token});
         } else {
-            res.json({'error': true, 'message': 'Password Wrong !!!'});
+            res.json({'status': false, 'data': 'Password Wrong !!!'});
         }
     });
 });
@@ -38,12 +38,12 @@ router.post('/signup', (req, res) => {
     }).then(user => {
         //User is exist
         if (user) {
-            return res.json({'error': true, 'message': 'User is exist. Please sign in or choose another email'});
+            return res.json({'status': false, 'data': 'User is exist. Please sign in or choose another email'});
         }
         //Check validate
         var { error } = validateUser(req.body);
         if (error) {
-            res.json({'error': true, 'message': error.details[0].message});
+            res.json({'status': false, 'data': error.details[0].message});
         } else {
             //Create new User
             User.create({
@@ -51,7 +51,7 @@ router.post('/signup', (req, res) => {
                 email: req.body.email,
                 password: req.body.password
             }).then(newUser => {
-                res.json({'success':true, 'data': newUser});
+                res.json({'status':true, 'data': newUser});
             });
         }
     });

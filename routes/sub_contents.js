@@ -15,14 +15,14 @@ router.get('/:meetingId', isAuthenticated, (req, res) => {
             ['start_time', 'ASC']
         ]
     }).then(subContents => {
-        return res.json({'success': true, 'data': subContents});
+        return res.json({'status': true, 'data': subContents});
     });
 });
 
 router.post('/:meetingId', isAuthenticated, (req, res) => {
     Meeting.findById(req.params.meetingId).then(meeting => {
         if (!meeting) {
-            return res.json({ 'error': true, 'message': 'There is no Meeting like that'});
+            return res.json({ 'status': false, 'data': 'There is no Meeting like that'});
         }
         var errors = [];
         var subContents = [];
@@ -33,7 +33,7 @@ router.post('/:meetingId', isAuthenticated, (req, res) => {
             }
         }
         if (errors.length !== 0) {
-            return res.json({'error': true, 'message': errors});
+            return res.json({'status': false, 'data': errors});
         }
         for (let i = 0; i < req.body.length; i++) {
             SubContent.findOne({
@@ -58,9 +58,9 @@ router.post('/:meetingId', isAuthenticated, (req, res) => {
         }
         setTimeout(() => {
             if (subContents.length === 0) {
-                return res.json({'error': true, 'message': 'No new number_id to add'});
+                return res.json({'status': false, 'data': 'No new number_id to add'});
             }
-            return res.json({ 'success': true, 'data': subContents});
+            return res.json({ 'status': true, 'data': subContents});
         }, 1000);
     });
 });
@@ -68,7 +68,7 @@ router.post('/:meetingId', isAuthenticated, (req, res) => {
 router.put('/:meetingId', isAuthenticated, (req, res) => {
     Meeting.findById(req.params.meetingId).then(meeting => {
         if (!meeting) {
-            return res.json({ 'error': true, 'message': 'There is no Meeting like that'});
+            return res.json({ 'status': false, 'data': 'There is no Meeting like that'});
         }
         var errors = [];
         var subContents = [];
@@ -79,7 +79,7 @@ router.put('/:meetingId', isAuthenticated, (req, res) => {
             }
         }
         if (errors.length !== 0) {
-            return res.json({'error': true, 'message': errors});
+            return res.json({'status': false, 'data': errors});
         }
         for (let i = 0; i < req.body.length; i++) {
             SubContent.findOne({
@@ -101,9 +101,9 @@ router.put('/:meetingId', isAuthenticated, (req, res) => {
         }
         setTimeout(() => {
             if (subContents.length === 0) {
-                return res.json({'error': true, 'message': 'No Sub Content is update'});
+                return res.json({'status': false, 'data': 'No Sub Content is update'});
             }
-            return res.json({ 'success': true, 'data': subContents});
+            return res.json({ 'status': true, 'data': subContents});
         }, 1000);
     });
 });
@@ -111,14 +111,14 @@ router.put('/:meetingId', isAuthenticated, (req, res) => {
 router.delete('/:meetingId/:subContentId', isAuthenticated, (req, res) => {
     Meeting.findById(req.params.meetingId).then(meeting => {
         if (!meeting) {
-            return res.json({ 'error': true, 'message': 'There is no Meeting like that'});
+            return res.json({ 'status': false, 'data': 'There is no Meeting like that'});
         }
         SubContent.findById(req.params.subContentId).then(subContent => {
             if (!subContent) {
-                return res.json({ 'error': true, 'message': 'This is no SubContent available to delete'});
+                return res.json({ 'status': false, 'data': 'This is no SubContent available to delete'});
             }
             subContent.destroy();
-            return res.json({ 'success': true, 'data': subContent });
+            return res.json({ 'status': true, 'data': subContent });
         });
     });
 });
