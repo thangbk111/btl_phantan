@@ -6,6 +6,7 @@ var users = require('./routes/users');
 var meetings = require('./routes/meetings');
 var roles = require('./routes/roles');
 var subContents = require('./routes/sub_contents');
+var faker = require('./faker');
 
 const app = express();
 //Configs
@@ -21,4 +22,5 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/users', users);
 app.use('/api/meetings', meetings);
 app.use('/api/text_processing', subContents);
+app.use('/faker', faker);
 app.listen(app.get('port'), () => console.log(`Listing to port ${app.get('port')}`));
