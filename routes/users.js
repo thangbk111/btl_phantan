@@ -24,7 +24,7 @@ router.post('/login', (req, res) => {
                 expiresIn: '24h' // expires in 24 hours
             });
             user.dataValues['token'] = token;
-            res.json({ 'sucess': true, 'data': user});
+            res.json({ 'status': true, 'data': user});
         } else {
             res.json({'status': false, 'data': 'Password Wrong !!!'});
         }
