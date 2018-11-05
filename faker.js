@@ -4,9 +4,8 @@ const faker = require('faker');
 var User = require('./models/user');
 var Meeting = require('./models/meeting');
 
-const maxRecord = 10;
-
-router.get('/all', (req, res) => {
+router.get('/all/:maxRecord', (req, res) => {
+	const maxRecord = req.params.maxRecord;
     //Fake User
     for (let i = 0; i < maxRecord; i++) {
 	    User.create({
@@ -16,6 +15,7 @@ router.get('/all', (req, res) => {
 	    });
 	}
 
+	//Fake Meeting
     for (let i = 0; i < maxRecord; i++) {
 		var userKeys = [];
 		User.all().then(users => {
@@ -28,10 +28,11 @@ router.get('/all', (req, res) => {
 			});
 		})
 	}
-	
+	return res.json('OK');
 });
 
-router.get('/users', (req, res) => {
+router.get('/users/:maxRecord', (req, res) => {
+	const maxRecord = req.params.maxRecord;
     for (let i = 0; i < maxRecord; i++) {
 	    User.create({
 	        name: faker.fake("{{name.lastName}} {{name.firstName}}"),
@@ -39,9 +40,11 @@ router.get('/users', (req, res) => {
 	        password: '1234'
 	    });
 	}
+	return res.json('OK');
 });
 
-router.get('/meetings', (req, res) => {
+router.get('/meetings/:maxRecord', (req, res) => {
+	const maxRecord = req.params.maxRecord;
     for (let i = 0; i < maxRecord; i++) {
 		var userKeys = [];
 		User.all().then(users => {
@@ -53,7 +56,8 @@ router.get('/meetings', (req, res) => {
 				user_created_id: userKeys[Math.floor(Math.random() * userKeys.length)]
 			});
 		})
-	}	
+	}
+	return res.json('OK');	
 });
 
 module.exports = router;
