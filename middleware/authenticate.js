@@ -5,7 +5,7 @@ function isAuthenticated(req, res, next) {
       // verifies secret and checks exp
         jwt.verify(token, 'btl_phantan', function(err, decoded) {
             if (err) {
-                return res.json({ "error": true, "message": 'Failed to authenticate token.' });
+                return res.json({ "status": false, "data": 'Failed to authenticate token.' });
             }
             else {
                 req.decoded = decoded;
@@ -15,8 +15,8 @@ function isAuthenticated(req, res, next) {
   
     } else {
         return res.status(403).send({ 
-            "error": true, 
-            "message": 'No token provided.' 
+            "status": false, 
+            "data": 'No token provided.' 
         });
     }
 };
