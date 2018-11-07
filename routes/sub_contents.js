@@ -3,10 +3,11 @@ const express = require('express');
 const router = express.Router();
 var SubContent = require('../models/sub_content');
 var Meeting = require('../models/meeting');
-var isAuthenticated = require('../middleware/authenticate');
+var Authorization = require('../middleware/authorization');
 
 
-router.get('/:meetingId', isAuthenticated, (req, res) => {
+
+router.get('/:meetingId', Authorization.isViewer, (req, res) => {
     SubContent.findAll({
         where: {
             meeting_id: req.params.meetingId
@@ -19,7 +20,7 @@ router.get('/:meetingId', isAuthenticated, (req, res) => {
     });
 });
 
-router.post('/:meetingId', isAuthenticated, (req, res) => {
+router.post('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
     Meeting.findById(req.params.meetingId).then(meeting => {
         if (!meeting) {
             return res.json({ 'status': false, 'data': 'There is no Meeting like that'});
@@ -38,7 +39,9 @@ router.post('/:meetingId', isAuthenticated, (req, res) => {
         for (let i = 0; i < req.body.length; i++) {
             SubContent.findOne({
                 where: {
-                    number_id: req.body[i].number_id
+                    number_id: req.body[i].number_id,
+                    meeting_id: meeting.id,
+                    user_id: req.decoded.id
                 }
             }).then(subContent => {
                 if (!subContent) {
@@ -65,7 +68,7 @@ router.post('/:meetingId', isAuthenticated, (req, res) => {
     });
 });
 
-router.put('/:meetingId', isAuthenticated, (req, res) => {
+router.put('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
     Meeting.findById(req.params.meetingId).then(meeting => {
         if (!meeting) {
             return res.json({ 'status': false, 'data': 'There is no Meeting like that'});
@@ -108,7 +111,7 @@ router.put('/:meetingId', isAuthenticated, (req, res) => {
     });
 });
 
-router.delete('/:meetingId/:subContentId', isAuthenticated, (req, res) => {
+router.delete('/:meetingId/:subContentId', (req, res) => {
     Meeting.findById(req.params.meetingId).then(meeting => {
         if (!meeting) {
             return res.json({ 'status': false, 'data': 'There is no Meeting like that'});
