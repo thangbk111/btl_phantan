@@ -22,4 +22,5 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/users', users);
 app.use('/api/meetings',isAuthenticated, meetings);
 app.use('/api/text_processing', isAuthenticated, subContents);
+app.use('/api/invite_meeting', isAuthenticated, roles);
 app.listen(app.get('port'), () => console.log(`Listing to port ${app.get('port')}`));
