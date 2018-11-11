@@ -27,30 +27,30 @@ router.post('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
         }
         var errors = [];
         var subContents = [];
-        for (var i = 0; i < req.body.length; i++) {
-            var { error } = validateSubContent(req.body[i]);
+        for (var i = 0; i < req.body.content.length; i++) {
+            var { error } = validateSubContent(req.body.content[i]);
             if (error) {
-                errors.push('\n Error in number_id: ' + req.body[i].number_id + ' --- Message: ' + error.details[0].message);
+                errors.push('\n Error in number_id: ' + req.body.content[i].number_id + ' --- Message: ' + error.details[0].message);
             }
         }
         if (errors.length !== 0) {
             return res.json({'status': false, 'data': errors});
         }
-        for (let i = 0; i < req.body.length; i++) {
+        for (let i = 0; i < req.body.content.length; i++) {
             SubContent.findOne({
                 where: {
-                    number_id: req.body[i].number_id,
+                    number_id: req.body.content[i].number_id,
                     meeting_id: meeting.id,
                     user_id: req.decoded.id
                 }
             }).then(subContent => {
                 if (!subContent) {
                     SubContent.create({
-                        number_id: req.body[i].number_id,
-                        author: req.body[i].author,
-                        content: req.body[i].content,
-                        start_time: req.body[i].start_time,
-                        end_time: req.body[i].end_time,
+                        number_id: req.body.content[i].number_id,
+                        author: req.body.content[i].author,
+                        content: req.body.content[i].content,
+                        start_time: req.body.content[i].start_time,
+                        end_time: req.body.content[i].end_time,
                         user_id: req.decoded.id,
                         meeting_id: req.params.meetingId
                     }).then(newSubContent => {
@@ -75,27 +75,27 @@ router.put('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
         }
         var errors = [];
         var subContents = [];
-        for (var i = 0; i < req.body.length; i++) {
-            var { error } = validateSubContent(req.body[i]);
+        for (var i = 0; i < req.body.content.length; i++) {
+            var { error } = validateSubContent(req.body.content[i]);
             if (error) {
-                errors.push('\n Error in number_id: ' + req.body[i].number_id + ' --- Message: ' + error.details[0].message);
+                errors.push('\n Error in number_id: ' + req.body.content[i].number_id + ' --- Message: ' + error.details[0].message);
             }
         }
         if (errors.length !== 0) {
             return res.json({'status': false, 'data': errors});
         }
-        for (let i = 0; i < req.body.length; i++) {
+        for (let i = 0; i < req.body.content.length; i++) {
             SubContent.findOne({
                 where: {
-                    number_id: req.body[i].number_id
+                    number_id: req.body.content[i].number_id
                 }
             }).then(subContent => {
                 if (subContent) {
                     subContent.update({
-                        author: req.body[i].author,
-                        content: req.body[i].content,
-                        start_time: req.body[i].start_time,
-                        end_time: req.body[i].end_time
+                        author: req.body.content[i].author,
+                        content: req.body.content[i].content,
+                        start_time: req.body.content[i].start_time,
+                        end_time: req.body.content[i].end_time
                     }).then(updatedSubContent => {
                         subContents.push(updatedSubContent);
                     });
