@@ -32,7 +32,7 @@ Authorization.isViewer = function(req, res, next) {
 }
 
 Authorization.isEditerOrOwnerMeeting =  function(req, res, next) {
-    var meeting_id = req.params.meetingId;
+    var meeting_id = (req.params.meetingId === null) ? null : req.params.meetingId;
     var user_id =  req.decoded.id;
     Role.findOne({
         where: {
