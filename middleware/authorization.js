@@ -77,4 +77,15 @@ Authorization.isOwnerMeeting =  function(req, res, next) {
     });
 };
 
+Authorization.getUserRole = function(userId, meetingId) {
+    Role.findOne({
+        where: {
+            user_id: userId,
+            meeting_id: meetingId
+        }
+    }).then(userRole => {
+        return userRole.role;
+    });
+}
+
 module.exports = Authorization;
