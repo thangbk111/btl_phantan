@@ -10,24 +10,28 @@ var subContent = sequelize.define('sub_contents', {
         primaryKey: true,
         autoIncrement: true,
     },
-    number_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
     author: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     content: {
         type: Sequelize.TEXT,
-        allowNull: false
+        allowNull: true
     },
     start_time: {
-        type: Sequelize.STRING,
+        type: Sequelize.DATE,
         allowNull: false
     },
     end_time: {
-        type: Sequelize.STRING,
+        type: Sequelize.DATE,
+        allowNull: false
+    },
+    flag: {
+        type: Sequelize.INTEGER, // 0: OK, 1: conflict
+        allowNull: false,
+    },
+    is_full: {
+        type: Sequelize.INTEGER, // 0: missing, 1: OK
         allowNull: false
     }
 }, {
