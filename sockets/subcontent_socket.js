@@ -1,5 +1,6 @@
 var Authorization = require('../middleware/authorization');
 var SubContent = require('../models/sub_content');
+const FIXED_CONFLICT = 2;
 
 var SubContentSocket = {
     edit_subcontent: function(data) {
@@ -13,7 +14,8 @@ var SubContentSocket = {
                 } else {
                     subContent.update({
                         author: data.subcontent.author,
-                        content: data.subcontent.content
+                        content: data.subcontent.content,
+                        flag: FIXED_CONFLICT
                     });
                     io.emit('edit_subcontent', { 'status': true, 'data': subContent });
                 }
