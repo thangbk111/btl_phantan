@@ -21,6 +21,8 @@ Client Emit ===>
         "id"
         "author"
         "content"
+        "start_time"
+        "end_time"
     }
 } 
 */

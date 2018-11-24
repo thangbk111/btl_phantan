@@ -268,3 +268,4 @@ function createNewSubContent(typeFile, _content, flag, isFull) {
 }
 
 module.exports = router;
+module.exports = createNewSubContent;
