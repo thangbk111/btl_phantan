@@ -18,8 +18,9 @@ const FULL = 1;
 const MISSING = 0;
 
 const app = express();
-var socketServer = require('http').createServer();
-var io = require('socket.io')(socketServer);
+var io = require('./sockets/socket_server').createSocket();
+// var socketServer = require('http').createServer();
+// var io = require('socket.io')(socketServer);
 /*
 Client Emit ===> 
 {
@@ -116,7 +117,7 @@ app.use('/api/meetings',isAuthenticated, meetings);
 app.use('/api/sub_contents', isAuthenticated, subContents);
 app.use('/api/invite_meeting', isAuthenticated, roles);
 
-socketServer.listen(8080, () => console.log('Socket Server listening port 8080'));
+// socketServer.listen(8080, () => console.log('Socket Server listening port 8080'));
 app.listen(app.get('port'), () => console.log(`Listening to port ${app.get('port')}`));
 
 function checkRole(role) {
