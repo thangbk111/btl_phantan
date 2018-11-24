@@ -17,6 +17,7 @@ const FULL = 1;
 const MISSING = 0;
 
 router.get('/:meetingId', Authorization.isViewer, (req, res) => {
+    console.log('meetingnngngngngngn');
     SubContent.findAll({
         where: {
             meeting_id: req.params.meetingId
@@ -268,4 +269,3 @@ function createNewSubContent(typeFile, _content, flag, isFull) {
 }
 
 module.exports = router;
-module.exports = createNewSubContent;

@@ -1,6 +1,7 @@
 var Authorization = require('../middleware/authorization');
 var SubContent = require('../models/sub_content');
 var RouterSubContent = require('../routes/sub_contents');
+const Joi = require('joi');
 const TYPE_FILE1 = 0; // {'author', 'start_time', 'end_time'}
 const TYPE_FILE2 = 1; // {start_time', 'end_time', 'content'}
 const TYPE_FILE3 = 2; // {'author', 'start_time', 'end_time', 'content'}
