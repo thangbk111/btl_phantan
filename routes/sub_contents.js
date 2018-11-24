@@ -6,6 +6,7 @@ const Op = Sequelize.Op;
 var SubContent = require('../models/sub_content');
 var Meeting = require('../models/meeting');
 var Authorization = require('../middleware/authorization');
+var historyController = require('../controller/history_controller');
 
 const TYPE_FILE1 = 0; // {'author', 'start_time', 'end_time'}
 const TYPE_FILE2 = 1; // {start_time', 'end_time', 'content'}
@@ -17,7 +18,6 @@ const FULL = 1;
 const MISSING = 0;
 
 router.get('/:meetingId', Authorization.isViewer, (req, res) => {
-    console.log('meetingnngngngngngn');
     SubContent.findAll({
         where: {
             meeting_id: req.params.meetingId
@@ -68,6 +68,8 @@ router.post('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
                         subcontents[0].update({
                             author: contents[i].author,
                             is_full: FULL
+                        }).then(subContentUpdated => {
+                            historyController.createHistory(subContentUpdated.id,'update', 'author', '', subContentUpdated.author, userId);
                         });
                     }
                     //CASE: Conflict Author
@@ -126,6 +128,8 @@ router.post('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
                         subcontent.update({
                             content: contents[i].content,
                             is_full: FULL
+                        }).then(subContentUpdated => {
+                            historyController.createHistory(subContentUpdated.id,'update', 'content', '', subContentUpdated.content, userId);
                         });
                     } else {
                         createNewSubContent(TYPE_FILE2, contents[i], NO_CONFLICT, MISSING);
@@ -241,6 +245,8 @@ function createNewSubContent(typeFile, _content, flag, isFull) {
             flag: flag,
             user_id: _content.userId,
             meeting_id: _content.meetingId
+        }).then(newSubContent => {
+            historyController.createHistory(newSubContent.id,'insert', 'author', newSubContent.author, newSubContent.author, _content.userId);
         });
     }
     if (typeFile === TYPE_FILE2) {
@@ -252,6 +258,8 @@ function createNewSubContent(typeFile, _content, flag, isFull) {
             flag: flag,
             user_id: _content.userId,
             meeting_id: _content.meetingId
+        }).then(newSubContent => {
+            historyController.createHistory(newSubContent.id,'insert', 'content', subContent.content, subContent.content, _content.userId);
         });
     }
     if (typeFile === TYPE_FILE3) {
@@ -264,6 +272,9 @@ function createNewSubContent(typeFile, _content, flag, isFull) {
             flag: flag,
             user_id: _content.userId,
             meeting_id: _content.meetingId
+        }).then(newSubContent => {
+            historyController.createHistory(newSubContent.id,'insert', 'author', subContent.author, subContent.author, _content.userId);
+            historyController.createHistory(newSubContent.id,'insert', 'content', subContent.content, subContent.content, _content.userId);
         });
     }
 }
