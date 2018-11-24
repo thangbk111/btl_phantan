@@ -5,14 +5,25 @@ const morgan = require('morgan');
 var users = require('./routes/users');
 var meetings = require('./routes/meetings');
 var roles = require('./routes/roles');
+var histories = require('./routes/histories');
 var subContents = require('./routes/sub_contents');
+var SubContent = require('./models/sub_content');
 var isAuthenticated = require('./middleware/authenticate');
 var Authorization = require('./middleware/authorization');
+var historyController = require('./controller/history_controller');
+
+const TYPE_FILE1 = 0; // {'author', 'start_time', 'end_time'}
+const TYPE_FILE2 = 1; // {start_time', 'end_time', 'content'}
+const TYPE_FILE3 = 2; // {'author', 'start_time', 'end_time', 'content'}
+const CONFLICT = 1;
+const NO_CONFLICT = 0;
+const FIXED_CONFLICT = 2;
+const FULL = 1;
+const MISSING = 0;
 
 const app = express();
-var socketServer = require('http').createServer();
-var io = require('socket.io')(socketServer);
-var subContentSocket = require('./sockets/subcontent_socket');
+var io = require('./sockets/socket_server').createSocket();
+
 /*
 Client Emit ===> 
 {
@@ -28,6 +39,7 @@ Client Emit ===>
 } 
 */
 io.on('connection', (socket) => {
+    // Update and Add Channel
     socket.on('edit_subcontent', function(data) {
         if(!checkRole(Authorization.getUserRole(data.user_id, data.meeting_id))) {
             io.emit('edit_subcontent', { 'status': false, 'data': 'user has not access to edit'});
@@ -35,7 +47,6 @@ io.on('connection', (socket) => {
             if (data.subcontent.id === 0 ){
                 var {error} = validateTypeFile3(data.subcontent);
                 if (error) {
-                    //return res.json({'status': false, 'data': error});
                     io.emit('edit_subcontent', { 'status': false, 'data': error});
                 } else {
                     SubContent.findOne({
@@ -43,7 +54,7 @@ io.on('connection', (socket) => {
                             'start_time': data.subcontent.start_time,
                             'end_time': data.subcontent.end_time,
                             'author': data.subcontent.author,
-                            'is_full': 1
+                            'is_full': FULL
                         }
                     }).then(subcontent => {
                         if (!subcontent) {
@@ -52,12 +63,15 @@ io.on('connection', (socket) => {
                                 content: data.subcontent.content,
                                 start_time: data.subcontent.start_time,
                                 end_time: data.subcontent.end_time,
-                                is_full: 1,
-                                flag: 2,
+                                is_full: FULL,
+                                flag: FIXED_CONFLICT,
                                 user_id: data.user_id,
                                 meeting_id: data.meeting_id
+                            }).then(newSubContent => {
+                                io.emit('edit_subcontent', { 'status': true, 'data': newSubContent });
+                                historyController.createHistory(newSubContent.id,'insert', 'author', newSubContent.author, newSubContent.author, data.user_id);
+                                historyController.createHistory(newSubContent.id,'insert', newSubContent.content, newSubContent.content, data.user_id);
                             });
-                            io.emit('edit_subcontent', { 'status': true, 'data': "add content successfull" });
                         }
                     });
                 }
@@ -66,15 +80,41 @@ io.on('connection', (socket) => {
                     if (!subContent) {
                         io.emit('edit_subcontent', { 'status': false, 'data': 'This is no SubContent available to update'});
                     } else {
+                        var oldAuthor = subContent.author;
+                        var oldContent = subContent.content;
                         subContent.update({
                             author: data.subcontent.author,
                             content: data.subcontent.content,
-                            flag: 2
+                            flag: FIXED_CONFLICT
+                        }).then(subContentUpdated => {
+                            if (subContentUpdated.author !== oldAuthor) {
+                                historyController.createHistory(subContentUpdated.id,'update', 'author', oldAuthor, subContentUpdated.author, data.user_id);
+                            }
+                            if (subContentUpdated.content !== oldContent) {
+                                historyController.createHistory(subContentUpdated.id,'update', 'content', oldContent, subContentUpdated.content, data.user_id);
+                            }
+                            io.emit('edit_subcontent', { 'status': true, 'data': subContent });
                         });
-                        io.emit('edit_subcontent', { 'status': true, 'data': subContent });
                     }
                 });
             }
+        }
+    });
+
+    // Delete Channel
+    socket.on('delete_subcontent', function(data) {
+        if(!checkRole(Authorization.getUserRole(data.user_id, data.meeting_id))) {
+            io.emit('edit_subcontent', { 'status': false, 'data': 'user has not access to edit'});
+        }else{
+            SubContent.findById(data.subcontent.id).then(subContent => {
+                if (!subContent) {
+                    io.emit('delete_subcontent', { 'status': false, 'data': 'This is no SubContent available to delete'});
+                }
+                subContent.destroy();
+                historyController.createHistory(subContent.id,'delete', 'author', subContent.author, '', data.user_id);
+                historyController.createHistory(subContent.id,'delete', 'content', subContent.content, '', data.user_id);
+                io.emit('delete_subcontent', { 'status': true, 'data': subContent });
+            });
         }
     });
 });
@@ -92,8 +132,8 @@ app.use('/api/users', users);
 app.use('/api/meetings',isAuthenticated, meetings);
 app.use('/api/sub_contents', isAuthenticated, subContents);
 app.use('/api/invite_meeting', isAuthenticated, roles);
+app.use('/api/histories', isAuthenticated, histories);
 
-socketServer.listen(8080, () => console.log('Socket Server listening port 8080'));
 app.listen(app.get('port'), () => console.log(`Listening to port ${app.get('port')}`));
 
 function checkRole(role) {
