@@ -6,6 +6,7 @@ var users = require('./routes/users');
 var meetings = require('./routes/meetings');
 var roles = require('./routes/roles');
 var subContents = require('./routes/sub_contents');
+var SubContent = require('./models/sub_content');
 var isAuthenticated = require('./middleware/authenticate');
 var Authorization = require('./middleware/authorization');
 const TYPE_FILE1 = 0; // {'author', 'start_time', 'end_time'}
@@ -18,8 +19,8 @@ const FULL = 1;
 const MISSING = 0;
 
 const app = express();
-var socketServer = require('http').createServer();
-var io = require('socket.io')(socketServer);
+var io = require('./sockets/socket_server').createSocket();
+
 /*
 Client Emit ===> 
 {
@@ -116,7 +117,6 @@ app.use('/api/meetings',isAuthenticated, meetings);
 app.use('/api/sub_contents', isAuthenticated, subContents);
 app.use('/api/invite_meeting', isAuthenticated, roles);
 
-socketServer.listen(8080, () => console.log('Socket Server listening port 8080'));
 app.listen(app.get('port'), () => console.log(`Listening to port ${app.get('port')}`));
 
 function checkRole(role) {
