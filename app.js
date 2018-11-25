@@ -110,9 +110,9 @@ io.on('connection', (socket) => {
                 if (!subContent) {
                     io.emit('delete_subcontent', { 'status': false, 'data': 'This is no SubContent available to delete'});
                 }
-                subContent.destroy();
                 historyController.createHistory(subContent.id,'delete', 'author', subContent.author, '', data.user_id);
                 historyController.createHistory(subContent.id,'delete', 'content', subContent.content, '', data.user_id);
+                subContent.destroy();
                 io.emit('delete_subcontent', { 'status': true, 'data': subContent });
             });
         }
