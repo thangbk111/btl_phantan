@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const morgan = require('morgan');
+const Joi = require('joi');
+var History = require('./models/history');
 var users = require('./routes/users');
 var meetings = require('./routes/meetings');
 var roles = require('./routes/roles');
@@ -45,10 +47,14 @@ io.on('connection', (socket) => {
             io.emit('edit_subcontent', { 'status': false, 'data': 'user has not access to edit'});
         }else{
             if (data.subcontent.id === 0 ){
+                console.log("new id = 0 ");
                 var {error} = validateTypeFile3(data.subcontent);
                 if (error) {
+                    console.log("Error subcontent");
+                    console.log(error);
                     io.emit('edit_subcontent', { 'status': false, 'data': error});
                 } else {
+                    console.log("no error");
                     SubContent.findOne({
                         where: {
                             'start_time': data.subcontent.start_time,
@@ -57,6 +63,8 @@ io.on('connection', (socket) => {
                             'is_full': FULL
                         }
                     }).then(subcontent => {
+                        console.log("find SubContent");
+                        console.log(subcontent);
                         if (!subcontent) {
                             SubContent.create({
                                 author: data.subcontent.author,
@@ -68,9 +76,10 @@ io.on('connection', (socket) => {
                                 user_id: data.user_id,
                                 meeting_id: data.meeting_id
                             }).then(newSubContent => {
+                                console.log("new SubContent");
                                 io.emit('edit_subcontent', { 'status': true, 'data': newSubContent });
-                                historyController.createHistory(newSubContent.id,'insert', 'author', newSubContent.author, newSubContent.author, data.user_id);
-                                historyController.createHistory(newSubContent.id,'insert', newSubContent.content, newSubContent.content, data.user_id);
+                                // historyController.createHistory(newSubContent.id,'insert', 'author', newSubContent.author, newSubContent.author, data.user_id);
+                                // historyController.createHistory(newSubContent.id,'insert', newSubContent.content, newSubContent.content, data.user_id);
                             });
                         }
                     });
@@ -87,12 +96,12 @@ io.on('connection', (socket) => {
                             content: data.subcontent.content,
                             flag: FIXED_CONFLICT
                         }).then(subContentUpdated => {
-                            if (subContentUpdated.author !== oldAuthor) {
-                                historyController.createHistory(subContentUpdated.id,'update', 'author', oldAuthor, subContentUpdated.author, data.user_id);
-                            }
-                            if (subContentUpdated.content !== oldContent) {
-                                historyController.createHistory(subContentUpdated.id,'update', 'content', oldContent, subContentUpdated.content, data.user_id);
-                            }
+                            // if (subContentUpdated.author !== oldAuthor) {
+                            //     historyController.createHistory(subContentUpdated.id,'update', 'author', oldAuthor, subContentUpdated.author, data.user_id);
+                            // }
+                            // if (subContentUpdated.content !== oldContent) {
+                            //     historyController.createHistory(subContentUpdated.id,'update', 'content', oldContent, subContentUpdated.content, data.user_id);
+                            // }
                             io.emit('edit_subcontent', { 'status': true, 'data': subContent });
                         });
                     }
@@ -110,9 +119,9 @@ io.on('connection', (socket) => {
                 if (!subContent) {
                     io.emit('delete_subcontent', { 'status': false, 'data': 'This is no SubContent available to delete'});
                 }
+                // historyController.createHistory(subContent.id,'delete', 'author', subContent.author, '', data.user_id);
+                // historyController.createHistory(subContent.id,'delete', 'content', subContent.content, '', data.user_id);
                 subContent.destroy();
-                historyController.createHistory(subContent.id,'delete', 'author', subContent.author, '', data.user_id);
-                historyController.createHistory(subContent.id,'delete', 'content', subContent.content, '', data.user_id);
                 io.emit('delete_subcontent', { 'status': true, 'data': subContent });
             });
         }
@@ -145,6 +154,7 @@ function checkRole(role) {
 
 function validateTypeFile3(content) {
     schema = Joi.object().keys({
+        id: Joi.number().required(),
         author: Joi.string().required(),
         content: Joi.string().required(),
         start_time: Joi.date().iso().less(Joi.ref('end_time')).required(),
