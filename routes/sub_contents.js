@@ -226,7 +226,7 @@ function validateContentFile(contents, typeFile) {
             end_time: Joi.date().iso().greater(Joi.ref('start_time')).required()
         });
     }
-    for(var i = 0; i <= contents.length; i++) {
+    for(var i = 0; i < contents.length; i++) {
         var {error} = Joi.validate(contents[i], schema);
         if (error != null) {
             errors.push('content'+(i+1) +'---' + error.details[0].message);
