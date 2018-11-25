@@ -2,8 +2,9 @@ var History = require('../models/history');
 
 var HistoryController = {};
 
-HistoryController.createHistory = function(contentId, action, column, oldValue, newValue, userId) {
+HistoryController.createHistory = function(meetingId, contentId, action, column, oldValue, newValue, userId) {
     History.create({
+        meeting_id: meetingId,
         action: action,
         content_id: contentId,
         column: column,

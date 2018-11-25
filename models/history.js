@@ -12,6 +12,10 @@ var History = sequelize.define('histories', {
         type: Sequelize.STRING,
         allowNull: false
     },
+    meeting_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
     content_id: {
         type: Sequelize.INTEGER,
         allowNull: false

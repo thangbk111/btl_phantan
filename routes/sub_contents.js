@@ -52,6 +52,7 @@ router.post('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
             contents[i].meetingId = meetingId;
             SubContent.findAll({
                 where: {
+                    'meeting_id': contents[i].meetingId,
                     'start_time': contents[i].start_time,
                     'end_time': contents[i].end_time,
                     'flag': {
@@ -69,7 +70,7 @@ router.post('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
                             author: contents[i].author,
                             is_full: FULL
                         }).then(subContentUpdated => {
-                            historyController.createHistory(subContentUpdated.id,'update', 'author', '', subContentUpdated.author, userId);
+                            historyController.createHistory(meetingId, subContentUpdated.id,'update', 'author', '', subContentUpdated.author, userId);
                         });
                     }
                     //CASE: Conflict Author
@@ -113,6 +114,7 @@ router.post('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
             contents[i].meetingId = meetingId;
             SubContent.findOne({
                 where: {
+                    'meeting_id': contents[i].meetingId,
                     'start_time': contents[i].start_time,
                     'end_time': contents[i].end_time,
                     'flag': {
@@ -129,35 +131,11 @@ router.post('/:meetingId', Authorization.isEditerOrOwnerMeeting, (req, res) => {
                             content: contents[i].content,
                             is_full: FULL
                         }).then(subContentUpdated => {
-                            historyController.createHistory(subContentUpdated.id,'update', 'content', '', subContentUpdated.content, userId);
+                            historyController.createHistory(meetingId, subContentUpdated.id,'update', 'content', '', subContentUpdated.content, userId);
                         });
                     } else {
                         createNewSubContent(TYPE_FILE2, contents[i], NO_CONFLICT, MISSING);
                     }
-                }
-            });
-        }
-        return res.json({'status': true, 'data': 'Data was added successfull'});
-    }
-    //TYPE 3
-    if (req.body.type === TYPE_FILE3) {
-        var errors = validateContentFile(contents, TYPE_FILE3);
-        if (errors.length !== 0) {
-            return res.json({'status': false, 'data': errors});
-        }
-        for (let i = 0; i < contents.length; i++) {
-            contents[i].userId = userId;
-            contents[i].meetingId = meetingId;
-            SubContent.findOne({
-                where: {
-                    'start_time': contents[i].start_time,
-                    'end_time': contents[i].end_time,
-                    'author': contents[i].author,
-                    'is_full': FULL
-                }
-            }).then(subcontent => {
-                if (!subcontent) {
-                    createNewSubContent(TYPE_FILE3, contents[i], FIXED_CONFLICT, FULL);
                 }
             });
         }
@@ -246,7 +224,7 @@ function createNewSubContent(typeFile, _content, flag, isFull) {
             user_id: _content.userId,
             meeting_id: _content.meetingId
         }).then(newSubContent => {
-            historyController.createHistory(newSubContent.id,'insert', 'author', newSubContent.author, newSubContent.author, _content.userId);
+            historyController.createHistory(_content.meetingId, newSubContent.id,'insert', 'author', newSubContent.author, newSubContent.author, _content.userId);
         });
     }
     if (typeFile === TYPE_FILE2) {
@@ -259,22 +237,7 @@ function createNewSubContent(typeFile, _content, flag, isFull) {
             user_id: _content.userId,
             meeting_id: _content.meetingId
         }).then(newSubContent => {
-            historyController.createHistory(newSubContent.id,'insert', 'content', subContent.content, subContent.content, _content.userId);
-        });
-    }
-    if (typeFile === TYPE_FILE3) {
-        SubContent.create({
-            author: _content.author,
-            content: _content.content,
-            start_time: _content.start_time,
-            end_time: _content.end_time,
-            is_full: isFull,
-            flag: flag,
-            user_id: _content.userId,
-            meeting_id: _content.meetingId
-        }).then(newSubContent => {
-            historyController.createHistory(newSubContent.id,'insert', 'author', subContent.author, subContent.author, _content.userId);
-            historyController.createHistory(newSubContent.id,'insert', 'content', subContent.content, subContent.content, _content.userId);
+            historyController.createHistory(_content.meetingId, newSubContent.id,'insert', 'content', subContent.content, subContent.content, _content.userId);
         });
     }
 }
