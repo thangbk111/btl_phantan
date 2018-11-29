@@ -4,20 +4,38 @@ const router = express.Router();
 var Meeting = require('../models/meeting');
 var Role = require('../models/role');
 var Authorization = require('../middleware/authorization');
+var User = require('../models/user');
 
 router.get('/', (req, res) => {
     Role.findAll({
         where: {
             user_id: req.decoded.id
         }
-    }).then(roles => {
+    }).then( async roles => {
+        var result = [];
         var meetingIds = [];
         for (let i = 0; i < roles.length; i++) {
             meetingIds.push(roles[i].dataValues.meeting_id);
         }
-        Meeting.findAll({ where: {id: meetingIds} }).then(meetings => {
-            res.json({ 'status': true, 'data': meetings});
-        });
+        meetings = await Meeting.findAll({ where: {id: meetingIds} });
+        for (let i in meetings) {
+            let meeting = meetings[i];
+            let id = meeting.user_created_id;
+            let name = await User.find({ where: { id: id} });
+            // console.log(name);
+            var data = {
+                "id" : meeting["id"],
+                "title": meeting["title"],
+                "created_at": meeting["created_at"],
+                "updated_at": meeting["updated_at"],
+                "user_created_id": meeting["user_created_id"],
+                "user_name" : name["name"]
+            };
+
+            console.log(data)
+            result.push(data);
+        }
+        res.json({'status': true, 'data': result});
     });
 });
 

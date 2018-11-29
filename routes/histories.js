@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
                 count--;
                 histories[i].change_by = user.email;
                 if (count === 1) {
-                    return res.json(histories);
+                    return res.json({ 'status': true, 'data': histories});
                 }
             });
         }
